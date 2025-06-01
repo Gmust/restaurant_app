@@ -1,0 +1,59 @@
+@page "/orders"
+@inject OrderService OrderService
+@inject NavigationManager NavManager
+
+<h2>Orders</h2>
+
+<table class="table table-striped">
+  <thead>
+  <tr>
+    <th>Order ID</th>
+    <th>User</th>
+    <th>Date</th>
+    <th>Status</th>
+    <th>Total</th>
+    <th>Actions</th>
+  </tr>
+  </thead>
+  <tbody>
+  @foreach (var order in orders)
+  {
+    <tr>
+      <td>@order.OrderId</td>
+      <td>@order.User?.Name</td>
+      <td>@order.OrderDate.ToShortDateString()</td>
+      <td>@order.Status</td>
+      <td>@order.TotalPrice.ToString("C")</td>
+      <td>
+        <button type="button" class="btn btn-link"
+                @onclick="() => ViewOrder(order.OrderId)">
+          View
+        </button>
+      </td>
+    </tr>
+  }
+  </tbody>
+</table>
+
+<button type="button" class="btn btn-success" @onclick="NewOrder">
+  Create Order
+</button>
+
+@code {
+  private List<Order> orders = new();
+
+  protected override async Task OnInitializedAsync()
+  {
+    orders = await OrderService.GetAllAsync();
+  }
+
+  private void ViewOrder(int id)
+  {
+    NavManager.NavigateTo($"/orders/{id}");
+  }
+
+  private void NewOrder()
+  {
+    NavManager.NavigateTo("/orders/create");
+  }
+}
