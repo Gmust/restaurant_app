@@ -1,4 +1,5 @@
 @page "/orders"
+@using Microsoft.JSInterop
 @inject OrderService OrderService
 @inject NavigationManager NavManager
 
@@ -25,24 +26,25 @@
       <td>@order.Status</td>
       <td>@order.TotalPrice.ToString("C")</td>
       <td>
-        <button type="button" class="btn btn-link"
-                @onclick="() => ViewOrder(order.OrderId)">
-          View
-        </button>
+        <button class="btn btn-link" @onclick="() => ViewOrder(order.OrderId)">View</button>
+        <button class="btn btn-link text-danger" @onclick="() => DeleteOrder(order.OrderId)">Delete</button>
       </td>
     </tr>
   }
   </tbody>
 </table>
 
-<button type="button" class="btn btn-success" @onclick="NewOrder">
-  Create Order
-</button>
+<button class="btn btn-success" @onclick="NewOrder">Create Order</button>
 
 @code {
   private List<Order> orders = new();
 
   protected override async Task OnInitializedAsync()
+  {
+    await LoadOrders();
+  }
+
+  private async Task LoadOrders()
   {
     orders = await OrderService.GetAllAsync();
   }
@@ -56,4 +58,17 @@
   {
     NavManager.NavigateTo("/orders/create");
   }
+
+  private async Task DeleteOrder(int id)
+  {
+    var confirmed = await JS.InvokeAsync<bool>("confirm", $"Are you sure you want to delete Order #{id}?");
+    if (confirmed)
+    {
+      await OrderService.DeleteAsync(id);
+      await LoadOrders(); // refresh the list
+    }
+  }
+
+  [Inject]
+  private IJSRuntime JS { get; set; } = default!;
 }
