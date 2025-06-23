@@ -131,7 +131,7 @@ namespace RestaurantApp.Data
         );
       }
 
-      context.SaveChanges(); // ensure users/dishes are saved before inserting addresses/orders
+      context.SaveChanges();
 
       if (!context.Addresses.Any())
       {
@@ -149,8 +149,8 @@ namespace RestaurantApp.Data
         );
       }
 
-      context.SaveChanges(); // ensure addresses exist before orders
-
+      context.SaveChanges(); 
+      
       if (!context.Orders.Any())
       {
         context.Orders.Add(new Order
